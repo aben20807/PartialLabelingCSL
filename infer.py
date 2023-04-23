@@ -3,7 +3,7 @@ from src.helper_functions.helper_functions import parse_args
 from src.loss_functions.losses import AsymmetricLoss, AsymmetricLossOptimized
 from src.models import create_model
 import argparse
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
 import pandas as pd
@@ -28,7 +28,7 @@ def inference(im, model, class_list, args):
     im_resize = im.resize((args.input_size, args.input_size))
     np_img = np.array(im_resize, dtype=np.uint8)
     tensor_img = torch.from_numpy(np_img).permute(2, 0, 1).float() / 255.0  # HWC to CHW
-    tensor_batch = torch.unsqueeze(tensor_img, 0).cuda()
+    tensor_batch = torch.unsqueeze(tensor_img, 0).cpu()
     output = torch.squeeze(torch.sigmoid(model(tensor_batch)))
     np_output = output.cpu().detach().numpy()
     idx_sort = np.argsort(-np_output)
@@ -37,22 +37,22 @@ def inference(im, model, class_list, args):
     scores = np_output[idx_sort][: args.top_k]
     # Threshold
     idx_th = scores > args.th
-    return detected_classes[idx_th], scores[idx_th], im
+    return detected_classes[idx_th], scores[idx_th], im, tensor_batch
 
 
 def display_image(im, tags, filename):
 
-    path_dest = "/results"
+    path_dest = "./results"
     if not os.path.exists(path_dest):
         os.makedirs(path_dest)
 
-    plt.figure()
-    plt.imshow(im)
-    plt.axis('off')
-    plt.axis('tight')
-    # plt.rcParams["axes.titlesize"] = 10
-    plt.title("Predicted classes: {}".format(tags))
-    plt.savefig(os.path.join(path_dest, filename))
+    # plt.figure()
+    # plt.imshow(im)
+    # plt.axis('off')
+    # plt.axis('tight')
+    # # plt.rcParams["axes.titlesize"] = 10
+    # plt.title("Predicted classes: {}".format(tags))
+    # plt.savefig(os.path.join(path_dest, filename))
 
 
 def main():
@@ -64,8 +64,9 @@ def main():
     # Setup model
     print('Creating and loading the model...')
     state = torch.load(args.model_path, map_location='cpu')
-    # args.num_classes = state['num_classes']
-    model = create_model(args).cuda()
+    args.num_classes = state['num_classes']
+    print(f"Number of Classes: {args.num_classes}")
+    model = create_model(args).cpu()
     model.load_state_dict(state['model'], strict=True)
     model.eval()
     class_list = np.array(list(state['idx_to_class'].values()))
@@ -75,10 +76,11 @@ def main():
     df_description = pd.read_csv(args.class_description_path)
     dict_desc = dict(zip(df_description.values[:, 0], df_description.values[:, 1]))
     class_list = [dict_desc[x] for x in class_list]
+    # print(class_list)
 
     # Inference
     print('Inference...')
-    tags, scores, im = inference(args.pic_path, model, class_list, args)
+    tags, scores, im, tensor_batch = inference(args.pic_path, model, class_list, args)
 
     # displaying image
     print('Display results...')
@@ -97,14 +99,15 @@ def main():
 
     # displaying image
     print('showing image on screen...')
-    fig = plt.figure()
-    plt.imshow(im)
-    plt.axis('off')
-    plt.axis('tight')
-    # plt.rcParams["axes.titlesize"] = 10
-    plt.title("detected classes: {}".format(detected_classes))
-
-    plt.show()
+    # fig = plt.figure()
+    # plt.imshow(im)
+    # plt.axis('off')
+    # plt.axis('tight')
+    # # plt.rcParams["axes.titlesize"] = 10
+    # plt.title("detected classes: {}".format(detected_classes))
+    print("detected classes: {}".format(tags))
+    # 
+    # plt.show()
     print('done\n')
 
 

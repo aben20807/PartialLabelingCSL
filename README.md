@@ -1,5 +1,77 @@
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/multi-label-classification-with-partial/multi-label-classification-on-openimages-v6)](https://paperswithcode.com/sota/multi-label-classification-on-openimages-v6?p=multi-label-classification-with-partial)
 
+# Multi-label Classification with Partial Annotations using Class-aware Selective Loss (Original repo: [Alibaba-MIIL/PartialLabelingCSL](https://github.com/Alibaba-MIIL/PartialLabelingCSL))
+
+I just want to inference a few images on CPU
+
+Some fixes are referenced from [#4](https://github.com/Alibaba-MIIL/PartialLabelingCSL/pull/4)
+
+## Setup (WSL2 Ubuntu 20.04)
+
+1. Clone this repo
+2. Download TResNet-M: [link](https://miil-public-eu.oss-eu-central-1.aliyuncs.com/model-zoo/CSL/opim_v6/mtresnet_opim_86.72.pth) and put it to `./models_local/`
+
+```bash
+$ virtualenv -p python3 .venv
+$ source .venv/bin/activate
+$ pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+$ pip install git+https://github.com/mapillary/inplace_abno
+$ pip list
+Package            Version
+------------------ -------------------
+certifi            2022.12.7
+charset-normalizer 2.1.1
+filelock           3.9.0
+idna               3.4
+inplace-abn        1.1.1.dev7+gd7dd3e1
+Jinja2             3.1.2
+MarkupSafe         2.1.2
+mpmath             1.2.1
+networkx           3.0
+numpy              1.24.1
+pandas             2.0.0
+Pillow             9.3.0
+pip                20.0.2
+pkg-resources      0.0.0
+python-dateutil    2.8.2
+pytz               2023.3
+requests           2.28.1
+setuptools         44.0.0
+six                1.16.0
+sympy              1.11.1
+torch              2.0.0+cpu
+torchaudio         2.0.1+cpu
+torchvision        0.15.1+cpu
+typing-extensions  4.4.0
+tzdata             2023.3
+urllib3            1.26.13
+wheel              0.34.2
+```
+
+## Inference
+
+```bash
+$ python infer.py --dataset_type=OpenImages --model_name=tresnet_m --model_path=./models_local/mtresnet_opim_86.72.pth --th=0.7 --pic_path=./pics/10307608844_4c4c364af3_o.jpg
+Inference demo with CSL model
+Creating and loading the model...
+Number of Classes: 9605
+Done
+
+Inference...
+Display results...
+showing image on screen...
+detected classes: ['Color' 'Ladybug' 'Insect' 'Leaf beetle' 'Image' 'Beetle' 'Arthropod'
+ 'Close-up' 'Red bugs' 'Invertebrate' 'Green' 'Macro photography'
+ 'Colorfulness' 'Daytime' 'Carmine' 'Black' 'Biology' 'World' 'Tan'
+ 'Phenomenon' 'Photograph' 'Sports' 'Shape' 'Red' 'Organism' 'Grey' 'Area'
+ 'Design' 'Habitat' 'Aqua']
+done
+```
+
+Original README:
+
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/multi-label-classification-with-partial/multi-label-classification-on-openimages-v6)](https://paperswithcode.com/sota/multi-label-classification-on-openimages-v6?p=multi-label-classification-with-partial)
+
 # Multi-label Classification with Partial Annotations using Class-aware Selective Loss
 
 <br> [Paper](https://arxiv.org/abs/2110.10955) |
